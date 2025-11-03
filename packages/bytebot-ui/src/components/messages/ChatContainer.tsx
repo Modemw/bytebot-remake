@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useEffect, useCallback, Fragment } from "react";
 import { Role, TaskStatus, GroupedMessages } from "@/types";
 import { MessageGroup } from "./MessageGroup";
@@ -5,6 +7,7 @@ import { TextShimmer } from "../ui/text-shimmer";
 import { MessageAvatar } from "./MessageAvatar";
 import { Loader } from "../ui/loader";
 import { ChatInput } from "./ChatInput";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ChatContainerProps {
   scrollRef?: React.RefObject<HTMLDivElement | null>;
@@ -39,6 +42,7 @@ export function ChatContainer({
   loadMoreMessages,
 }: ChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Infinite scroll handler
   const handleScroll = useCallback(() => {
@@ -109,7 +113,7 @@ export function ChatContainer({
                       <Loader size={20} />
                     </div>
                     <TextShimmer className="text-sm" duration={2}>
-                      Bytebot is working...
+                      {t("chatContainer.working")}
                     </TextShimmer>
                   </div>
                 </div>
@@ -137,7 +141,7 @@ export function ChatContainer({
                     onInputChange={setInput}
                     onSend={handleAddMessage}
                     minLines={1}
-                    placeholder="Add more details to your task..."
+                    placeholder={t("chatInput.detailsPlaceholder")}
                   />
                 </div>
               </div>
@@ -146,7 +150,7 @@ export function ChatContainer({
         </>
       ) : (
         <div className="flex h-full items-center justify-center">
-          <p className="">No messages yet...</p>
+          <p>{t("chatContainer.noMessages")}</p>
         </div>
       )}
     </div>

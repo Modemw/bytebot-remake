@@ -21,11 +21,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { VirtualDesktopStatus } from "@/components/VirtualDesktopStatusHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function TaskPage() {
   const params = useParams();
   const router = useRouter();
   const taskId = params.id as string;
+  const { t } = useTranslation();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const {
@@ -88,17 +90,14 @@ export default function TaskPage() {
     scrollContainerRef: chatContainerRef,
   });
 
+  const taskInactive = isTaskInactive();
+
   // For inactive tasks, auto-load all messages for proper screenshot navigation
   useEffect(() => {
-    if (isTaskInactive() && hasMoreMessages && !isLoadingMoreMessages) {
+    if (taskInactive && hasMoreMessages && !isLoadingMoreMessages) {
       loadMoreMessages();
     }
-  }, [
-    isTaskInactive(),
-    hasMoreMessages,
-    isLoadingMoreMessages,
-    loadMoreMessages,
-  ]);
+  }, [taskInactive, hasMoreMessages, isLoadingMoreMessages, loadMoreMessages]);
 
   // Map each message ID to its flat index for screenshot scroll logic
   const messageIdToIndex = React.useMemo(() => {
@@ -157,12 +156,12 @@ export default function TaskPage() {
                     />
                   }
                 >
-                  Take Over
+                  {t("desktop.takeOver")}
                 </Button>
               )}
               {hasUserControl() && (
                 <Button onClick={handleResumeTask} variant="default" size="sm">
-                  Proceed
+                  {t("desktop.proceed")}
                 </Button>
               )}
               {canCancel() && (
@@ -180,7 +179,7 @@ export default function TaskPage() {
                       onClick={handleCancelTask}
                       className="text-red-600 focus:bg-red-50"
                     >
-                      Cancel
+                      {t("desktop.cancel")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

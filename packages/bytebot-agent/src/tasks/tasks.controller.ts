@@ -25,8 +25,38 @@ const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 const proxyUrl = process.env.BYTEBOT_LLM_PROXY_URL;
+const customModelsEnv = process.env.BYTEBOT_CUSTOM_MODELS;
 
-const models = [
+function loadCustomModels(): BytebotAgentModel[] {
+  if (!customModelsEnv) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(customModelsEnv);
+    if (!Array.isArray(parsed)) {
+      console.warn('BYTEBOT_CUSTOM_MODELS must be a JSON array.');
+      return [];
+    }
+
+    return parsed
+      .filter((model) => typeof model === 'object' && model !== null)
+      .map((model) => ({
+        provider: (model.provider as BytebotAgentModel['provider']) ?? 'custom',
+        name: model.name,
+        title: model.title ?? model.name,
+        contextWindow: model.contextWindow,
+      }))
+      .filter((model) => typeof model.name === 'string' && model.name.length > 0 && typeof model.title === 'string');
+  } catch (error) {
+    console.warn('Failed to parse BYTEBOT_CUSTOM_MODELS:', error);
+    return [];
+  }
+}
+
+const customModels = loadCustomModels();
+
+const defaultModels = [
   ...(anthropicApiKey ? ANTHROPIC_MODELS : []),
   ...(openaiApiKey ? OPENAI_MODELS : []),
   ...(geminiApiKey ? GOOGLE_MODELS : []),
@@ -96,7 +126,7 @@ export class TasksController {
           }),
         );
 
-        return models;
+        return [...models, ...customModels];
       } catch (error) {
         if (error instanceof HttpException) {
           throw error;
@@ -107,7 +137,7 @@ export class TasksController {
         );
       }
     }
-    return models;
+    return [...defaultModels, ...customModels];
   }
 
   @Get(':id')

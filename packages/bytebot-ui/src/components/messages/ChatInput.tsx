@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight02Icon, Attachment01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FileWithBase64 {
   name: string;
@@ -28,15 +31,19 @@ export function ChatInput({
   onSend,
   onFileUpload,
   minLines = 1,
-  placeholder = "Give Bytebot a task to work on...",
+  placeholder,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileWithBase64[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  
+  const { t } = useTranslation();
+
   const MAX_FILES = 5;
   const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB per file in bytes
+
+  const resolvedPlaceholder =
+    placeholder ?? t("chatInput.defaultPlaceholder");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +58,7 @@ export function ChatInput({
 
     // Check max files limit
     if (selectedFiles.length + files.length > MAX_FILES) {
-      setErrorMessage(`Maximum ${MAX_FILES} files allowed`);
+      setErrorMessage(t("chatInput.maxFiles", { count: MAX_FILES }));
       e.target.value = '';
       return;
     }
@@ -67,7 +74,11 @@ export function ChatInput({
     }
     
     if (oversizedFiles.length > 0) {
-      setErrorMessage(`File(s) exceed 30MB limit: ${oversizedFiles.join(', ')}`);
+      setErrorMessage(
+        t("chatInput.filesExceedLimit", {
+          files: oversizedFiles.join(", "),
+        }),
+      );
       e.target.value = '';
       return;
     }
@@ -169,8 +180,13 @@ export function ChatInput({
       {selectedFiles.length > 0 && (
         <div className="mb-2">
           <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
-            <span>{selectedFiles.length} / {MAX_FILES} files</span>
-            <span>Max 30MB per file</span>
+            <span>
+              {t("chatInput.fileCounter", {
+                count: selectedFiles.length,
+                max: MAX_FILES,
+              })}
+            </span>
+            <span>{t("chatInput.maxPerFile")}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {selectedFiles.map((file, index) => (
@@ -198,7 +214,7 @@ export function ChatInput({
       <form onSubmit={handleSubmit} className="relative">
         <textarea
           ref={textareaRef}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           value={input}
           onChange={(e) => onInputChange(e.target.value)}
           className={cn(

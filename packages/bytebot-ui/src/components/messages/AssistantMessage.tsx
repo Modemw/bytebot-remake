@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { GroupedMessages, TaskStatus } from "@/types";
 import { MessageAvatar } from "./MessageAvatar";
@@ -5,6 +7,7 @@ import { MessageContent } from "./content/MessageContent";
 import { isToolResultContentBlock, isImageContentBlock } from "@bytebot/shared";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AssistantMessageProps {
   group: GroupedMessages;
@@ -17,6 +20,7 @@ export function AssistantMessage({
   taskStatus,
   messageIdToIndex,
 }: AssistantMessageProps) {
+  const { t } = useTranslation();
   return (
     <div className={
       cn(
@@ -31,12 +35,12 @@ export function AssistantMessage({
           <div className="flex items-center gap-2">
             <Image
               src="/indicators/indicator-pink.png"
-              alt="User control status"
+              alt={t("desktop.status.userControl.alt")}
               width={15}
               height={15}
             />
             <p className="text-bytebot-bronze-light-12 text-[12px] font-medium">
-              You took control
+              {t("assistant.tookControl")}
             </p>
           </div>
           <div className="bg-bytebot-bronze-light-2 mt-2 space-y-0.5 rounded-2xl p-1">

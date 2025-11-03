@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft02Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { Button } from "./button";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface PaginationProps {
   currentPage: number;
@@ -18,6 +21,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   total,
   pageSize,
 }) => {
+  const { t } = useTranslation();
   if (totalPages <= 1) return null;
 
   const startItem = (currentPage - 1) * pageSize + 1;
@@ -58,9 +62,9 @@ export const Pagination: React.FC<PaginationProps> = ({
   return (
     <div className="flex items-center justify-between border-t border-bytebot-bronze-light-7 pt-6">
       <div className="flex items-center text-sm text-bytebot-bronze-light-11">
-        Showing {startItem} to {endItem} of {total} results
+        {t("pagination.summary", { start: startItem, end: endItem, total })}
       </div>
-      
+
       <div className="flex items-center space-x-2">
         <Button
           variant="outline"
@@ -70,7 +74,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           className="flex items-center space-x-1"
         >
           <HugeiconsIcon icon={ArrowLeft02Icon} className="h-4 w-4" />
-          <span>Previous</span>
+          <span>{t("pagination.previous")}</span>
         </Button>
 
         <div className="flex items-center space-x-1">
@@ -114,7 +118,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           disabled={currentPage === totalPages}
           className="flex items-center space-x-1"
         >
-          <span>Next</span>
+          <span>{t("pagination.next")}</span>
           <HugeiconsIcon icon={ArrowRight02Icon} className="h-4 w-4" />
         </Button>
       </div>

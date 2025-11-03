@@ -15,16 +15,14 @@ import {
 import { startTask } from "@/utils/taskUtils";
 import { Model } from "@/types";
 import { TaskList } from "@/components/tasks/TaskList";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface StockPhotoProps {
   src: string;
   alt?: string;
 }
 
-const StockPhoto: React.FC<StockPhotoProps> = ({
-  src,
-  alt = "Decorative image",
-}) => {
+const StockPhoto: React.FC<StockPhotoProps> = ({ src, alt = "" }) => {
   return (
     <div className="h-full w-full overflow-hidden rounded-lg bg-white">
       <div className="relative h-full w-full">
@@ -53,6 +51,7 @@ export default function Home() {
   );
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch("/api/tasks/models")
@@ -148,7 +147,7 @@ export default function Home() {
             <div className="flex w-full max-w-xl flex-col items-center">
               <div className="mb-6 flex w-full flex-col items-start justify-start">
                 <h1 className="text-bytebot-bronze-light-12 mb-1 text-2xl">
-                  What can I help you get done?
+                  {t("home.title")}
                 </h1>
               </div>
 
@@ -171,7 +170,7 @@ export default function Home() {
                     }
                   >
                     <SelectTrigger className="w-auto">
-                      <SelectValue placeholder="Select a model" />
+                      <SelectValue placeholder={t("home.modelPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {models.map((m) => (
@@ -186,8 +185,8 @@ export default function Home() {
 
               <TaskList
                 className="w-full"
-                title="Latest Tasks"
-                description="You'll see tasks that are completed, scheduled, or require your attention."
+                title={t("taskList.title")}
+                description={t("taskList.description")}
               />
             </div>
           </div>
@@ -195,7 +194,7 @@ export default function Home() {
           {/* Stock photo area - centered in its grid cell */}
           <div className="flex items-center justify-center px-6 pt-6">
             <div className="aspect-square h-full w-full max-w-md xl:max-w-2xl">
-              <StockPhoto src="/stock-1.png" alt="Bytebot stock image" />
+              <StockPhoto src="/stock-1.png" alt={t("home.stockAlt")} />
             </div>
           </div>
         </div>
@@ -206,7 +205,7 @@ export default function Home() {
             <div className="flex w-full max-w-xl flex-col items-center pb-10">
               <div className="mb-6 flex w-full flex-col items-start justify-start">
                 <h1 className="text-bytebot-bronze-light-12 mb-1 text-2xl">
-                  What can I help you get done?
+                  {t("home.title")}
                 </h1>
               </div>
 
@@ -229,7 +228,7 @@ export default function Home() {
                     }
                   >
                     <SelectTrigger className="w-auto">
-                      <SelectValue placeholder="Select a model" />
+                      <SelectValue placeholder={t("home.modelPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {models.map((m) => (
@@ -244,8 +243,8 @@ export default function Home() {
 
               <TaskList
                 className="w-full"
-                title="Latest Tasks"
-                description="You'll see tasks that are completed, scheduled, or require your attention."
+                title={t("taskList.title")}
+                description={t("taskList.description")}
               />
             </div>
           </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -11,24 +13,28 @@ import {
   Application,
   isPasteTextToolUseBlock,
   isReadFileToolUseBlock,
+  isScreenshotToolUseBlock,
 } from "@bytebot/shared";
-import { getIcon, getLabel } from "./ComputerToolUtils";
+import {
+  getIcon,
+  getLabel,
+  getDirectionLabel,
+  getApplicationLabel,
+} from "./ComputerToolUtils";
+import { useTranslation } from "@/hooks/useTranslation";
+import { TranslationFunction } from "@/contexts/LanguageContext";
 
 interface ComputerToolContentNormalProps {
   block: ComputerToolUseContentBlock;
 }
 
-const applicationMap: Record<Application, string> = {
-  firefox: "Firefox",
-  "1password": "1Password",
-  thunderbird: "Thunderbird",
-  vscode: "Visual Studio Code",
-  terminal: "Terminal",
-  directory: "File Manager",
-  desktop: "Desktop",
-};
-
-function ToolDetailsNormal({ block }: { block: ComputerToolUseContentBlock }) {
+function ToolDetailsNormal({
+  block,
+  t,
+}: {
+  block: ComputerToolUseContentBlock;
+  t: TranslationFunction;
+}) {
   const baseClasses =
     "px-1 py-0.5 text-[12px] text-bytebot-bronze-light-11 bg-bytebot-red-light-1 border border-bytebot-bronze-light-7 rounded-md";
 
@@ -36,7 +42,7 @@ function ToolDetailsNormal({ block }: { block: ComputerToolUseContentBlock }) {
     <>
       {isApplicationToolUseBlock(block) && (
         <p className={baseClasses}>
-          {applicationMap[block.input.application as Application]}
+          {getApplicationLabel(block.input.application as Application, t)}
         </p>
       )}
 
@@ -75,7 +81,8 @@ function ToolDetailsNormal({ block }: { block: ComputerToolUseContentBlock }) {
           (point) => point.x !== undefined && point.y !== undefined,
         ) && (
           <p className={baseClasses}>
-            From: {block.input.path[0].x}, {block.input.path[0].y} → To:{" "}
+            {t("computerTool.details.from")}: {block.input.path[0].x},{" "}
+            {block.input.path[0].y} → {t("computerTool.details.to")}: {" "}
             {block.input.path[block.input.path.length - 1].x},{" "}
             {block.input.path[block.input.path.length - 1].y}
           </p>
@@ -84,7 +91,15 @@ function ToolDetailsNormal({ block }: { block: ComputerToolUseContentBlock }) {
       {/* Scroll information */}
       {isScrollToolUseBlock(block) && (
         <p className={baseClasses}>
-          {String(block.input.direction)} {Number(block.input.scrollCount)}
+          {t("computerTool.details.scroll", {
+            direction: getDirectionLabel(
+              typeof block.input.direction === "string"
+                ? block.input.direction
+                : "",
+              t,
+            ),
+            count: Number(block.input.scrollCount),
+          })}
         </p>
       )}
 
@@ -99,8 +114,9 @@ function ToolDetailsNormal({ block }: { block: ComputerToolUseContentBlock }) {
 export function ComputerToolContentNormal({
   block,
 }: ComputerToolContentNormalProps) {
+  const { t } = useTranslation();
   // Don't render screenshot tool use blocks here - they're handled separately
-  if (getLabel(block) === "Screenshot") {
+  if (isScreenshotToolUseBlock(block)) {
     return null;
   }
 
@@ -112,9 +128,9 @@ export function ComputerToolContentNormal({
           className="text-bytebot-bronze-dark-9 h-4 w-4"
         />
         <p className="text-bytebot-bronze-light-11 text-xs">
-          {getLabel(block)}
+          {getLabel(block, t)}
         </p>
-        <ToolDetailsNormal block={block} />
+        <ToolDetailsNormal block={block} t={t} />
       </div>
     </div>
   );

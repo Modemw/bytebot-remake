@@ -16,6 +16,37 @@ import { AddTaskMessageDto } from './dto/add-task-message.dto';
 import { MessagesService } from '../messages/messages.service';
 import { BytebotAgentModel } from 'src/agent/agent.types';
 
+const customModelsEnv = process.env.BYTEBOT_CUSTOM_MODELS;
+
+function loadCustomModels(): BytebotAgentModel[] {
+  if (!customModelsEnv) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(customModelsEnv);
+    if (!Array.isArray(parsed)) {
+      console.warn('BYTEBOT_CUSTOM_MODELS must be a JSON array.');
+      return [];
+    }
+
+    return parsed
+      .filter((model) => typeof model === 'object' && model !== null)
+      .map((model) => ({
+        provider: (model.provider as BytebotAgentModel['provider']) ?? 'custom',
+        name: model.name,
+        title: model.title ?? model.name,
+        contextWindow: model.contextWindow,
+      }))
+      .filter((model) => typeof model.name === 'string' && model.name.length > 0 && typeof model.title === 'string');
+  } catch (error) {
+    console.warn('Failed to parse BYTEBOT_CUSTOM_MODELS:', error);
+    return [];
+  }
+}
+
+const customModels = loadCustomModels();
+
 @Controller('tasks')
 export class TasksController {
   constructor(
@@ -52,7 +83,7 @@ export class TasksController {
 
   @Get('models')
   async getModels() {
-    return [
+    const baseModels: BytebotAgentModel[] = [
       {
         provider: 'anthropic',
         name: 'claude-code',
@@ -60,6 +91,8 @@ export class TasksController {
         contextWindow: 200000,
       },
     ];
+
+    return [...baseModels, ...customModels];
   }
 
   @Get(':id')

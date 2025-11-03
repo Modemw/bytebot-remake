@@ -11,11 +11,14 @@ import {
   ComputerIcon,
 } from "@hugeicons/core-free-icons";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Header() {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   // After mounting, we can safely show the theme-dependent content
   useEffect(() => {
@@ -54,7 +57,7 @@ export function Header() {
                   ? "/bytebot_transparent_logo_white.svg"
                   : "/bytebot_transparent_logo_dark.svg"
               }
-              alt="Bytebot Logo"
+              alt={t("header.logoAlt")}
               width={100}
               height={30}
               className="h-8 w-auto"
@@ -67,28 +70,31 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Link href="/" className={getLinkClasses("/")}>
             <HugeiconsIcon icon={Home01Icon} className="h-4 w-4" />
-            <span className="text-sm">Home</span>
+            <span className="text-sm">{t("header.home")}</span>
           </Link>
           <Link href="/tasks" className={getLinkClasses("/tasks")}>
             <HugeiconsIcon icon={TaskDaily01Icon} className="h-4 w-4" />
-            <span className="text-sm">Tasks</span>
+            <span className="text-sm">{t("header.tasks")}</span>
           </Link>
           <Link href="/desktop" className={getLinkClasses("/desktop")}>
             <HugeiconsIcon icon={ComputerIcon} className="h-4 w-4" />
-            <span className="text-sm">Desktop</span>
+            <span className="text-sm">{t("header.desktop")}</span>
           </Link>
           <Link
             href="https://docs.bytebot.ai/quickstart"
             target="_blank"
             rel="noopener noreferrer"
             className={getLinkClasses("https://docs.bytebot.ai")}
+            aria-label={t("header.docsAria")}
           >
             <HugeiconsIcon icon={DocumentCodeIcon} className="h-4 w-4" />
-            <span className="text-sm">Docs</span>
+            <span className="text-sm">{t("header.docs")}</span>
           </Link>
         </div>
       </div>
-      <div className="flex items-center gap-3"></div>
+      <div className="flex items-center gap-3">
+        <LanguageSwitcher />
+      </div>
     </header>
   );
 }
