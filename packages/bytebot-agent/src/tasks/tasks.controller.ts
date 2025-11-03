@@ -47,6 +47,7 @@ function loadCustomModels(): BytebotAgentModel[] {
           typeof model.provider === 'string' && model.provider.length > 0
             ? model.provider
             : 'custom',
+        provider: (model.provider as BytebotAgentModel['provider']) ?? 'custom',
         name: model.name,
         title: model.title ?? model.name,
         contextWindow: model.contextWindow,
@@ -57,6 +58,7 @@ function loadCustomModels(): BytebotAgentModel[] {
           model.name.length > 0 &&
           typeof model.title === 'string',
       );
+      .filter((model) => typeof model.name === 'string' && model.name.length > 0 && typeof model.title === 'string');
   } catch (error) {
     console.warn('Failed to parse BYTEBOT_CUSTOM_MODELS:', error);
     return [];
@@ -64,6 +66,7 @@ function loadCustomModels(): BytebotAgentModel[] {
 }
 
 const customModelsFromEnv = loadCustomModels();
+const customModels = loadCustomModels();
 
 const defaultModels = [
   ...(anthropicApiKey ? ANTHROPIC_MODELS : []),
