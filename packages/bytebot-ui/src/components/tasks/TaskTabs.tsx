@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { TaskStatus } from "@/types";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -7,6 +9,7 @@ import {
   MultiplicationSignIcon,
   ListViewIcon,
 } from "@hugeicons/core-free-icons";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type TabKey = "ALL" | "ACTIVE" | "COMPLETED" | "CANCELLED_FAILED";
 
@@ -17,7 +20,7 @@ interface TaskTabsProps {
 }
 
 interface TabConfig {
-  label: string;
+  labelKey: string;
   icon:
     | typeof Tick02Icon
     | typeof CursorProgress04Icon
@@ -29,13 +32,13 @@ interface TabConfig {
 
 const TAB_CONFIGS: Record<TabKey, TabConfig> = {
   ALL: {
-    label: "All",
+    labelKey: "taskTabs.all",
     icon: ListViewIcon,
     color: "text-bytebot-bronze-light-10",
     statuses: Object.values(TaskStatus),
   },
   ACTIVE: {
-    label: "Active",
+    labelKey: "taskTabs.active",
     icon: CursorProgress04Icon,
     color: "text-bytebot-bronze-light-10",
     statuses: [
@@ -46,13 +49,13 @@ const TAB_CONFIGS: Record<TabKey, TabConfig> = {
     ],
   },
   COMPLETED: {
-    label: "Completed",
+    labelKey: "taskTabs.completed",
     icon: Tick02Icon,
     color: "text-bytebot-bronze-light-10",
     statuses: [TaskStatus.COMPLETED],
   },
   CANCELLED_FAILED: {
-    label: "Cancelled/Failed",
+    labelKey: "taskTabs.cancelledFailed",
     icon: MultiplicationSignIcon,
     color: "text-bytebot-bronze-light-10",
     statuses: [TaskStatus.CANCELLED, TaskStatus.FAILED],
@@ -65,6 +68,7 @@ export const TaskTabs: React.FC<TaskTabsProps> = ({
   taskCounts,
 }) => {
   const tabs = Object.entries(TAB_CONFIGS) as [TabKey, TabConfig][];
+  const { t } = useTranslation();
 
   return (
     <div className="border-bytebot-bronze-light-7 mb-6 border-b">
@@ -87,7 +91,7 @@ export const TaskTabs: React.FC<TaskTabsProps> = ({
                 icon={config.icon}
                 className={`h-4 w-4 ${isActive ? "text-bytebot-bronze-dark-7" : config.color}`}
               />
-              <span className="text-sm font-medium">{config.label}</span>
+              <span className="text-sm font-medium">{t(config.labelKey)}</span>
               {count > 0 && (
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs ${

@@ -26,6 +26,13 @@ export interface Model {
   provider: string;
   name: string;
   title: string;
+  contextWindow?: number | null;
+}
+
+export interface CustomModel extends Model {
+  id: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Task related enums and types

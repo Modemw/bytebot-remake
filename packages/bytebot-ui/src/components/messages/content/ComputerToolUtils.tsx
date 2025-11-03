@@ -27,6 +27,7 @@ import {
   isPasteTextToolUseBlock,
   isReadFileToolUseBlock,
 } from "@bytebot/shared";
+import { TranslationFunction } from "@/contexts/LanguageContext";
 
 // Define the IconType for proper type checking
 export type IconType =
@@ -88,79 +89,112 @@ export function getIcon(block: ComputerToolUseContentBlock): IconType {
   return User03Icon;
 }
 
-export function getLabel(block: ComputerToolUseContentBlock) {
+export function getLabel(
+  block: ComputerToolUseContentBlock,
+  t: TranslationFunction,
+) {
   if (isScreenshotToolUseBlock(block)) {
-    return "Screenshot";
+    return t("computerTool.labels.screenshot");
   }
 
   if (isWaitToolUseBlock(block)) {
-    return "Wait";
+    return t("computerTool.labels.wait");
   }
 
   if (isTypeKeysToolUseBlock(block)) {
-    return "Keys";
+    return t("computerTool.labels.keys");
   }
 
   if (isTypeTextToolUseBlock(block)) {
-    return "Type";
+    return t("computerTool.labels.type");
   }
 
   if (isPasteTextToolUseBlock(block)) {
-    return "Paste";
+    return t("computerTool.labels.paste");
   }
 
   if (isPressKeysToolUseBlock(block)) {
-    return "Press Keys";
+    return t("computerTool.labels.pressKeys");
   }
 
   if (isMoveMouseToolUseBlock(block)) {
-    return "Move Mouse";
+    return t("computerTool.labels.moveMouse");
   }
 
   if (isScrollToolUseBlock(block)) {
-    return "Scroll";
+    return t("computerTool.labels.scroll");
   }
 
   if (isCursorPositionToolUseBlock(block)) {
-    return "Cursor Position";
+    return t("computerTool.labels.cursorPosition");
   }
 
   if (isClickMouseToolUseBlock(block)) {
     const button = block.input.button;
     if (button === "left") {
       if (block.input.clickCount === 2) {
-        return "Double Click";
+        return t("computerTool.labels.doubleClick");
       }
 
       if (block.input.clickCount === 3) {
-        return "Triple Click";
+        return t("computerTool.labels.tripleClick");
       }
 
-      return "Click";
+      return t("computerTool.labels.click");
     }
 
-    return `${block.input.button?.charAt(0).toUpperCase() + block.input.button?.slice(1)} Click`;
+    const buttonLabel = button
+      ? t(`computerTool.buttons.${button}` as const)
+      : "";
+    return t("computerTool.labels.buttonClick", {
+      button: buttonLabel || button || "",
+    });
   }
 
   if (isDragMouseToolUseBlock(block)) {
-    return "Drag";
+    return t("computerTool.labels.drag");
   }
 
   if (isPressMouseToolUseBlock(block)) {
-    return "Press Mouse";
+    return t("computerTool.labels.pressMouse");
   }
 
   if (isTraceMouseToolUseBlock(block)) {
-    return "Trace Mouse";
+    return t("computerTool.labels.traceMouse");
   }
 
   if (isApplicationToolUseBlock(block)) {
-    return "Open Application";
+    return t("computerTool.labels.openApplication");
   }
 
   if (isReadFileToolUseBlock(block)) {
-    return "Read File";
+    return t("computerTool.labels.readFile");
   }
 
-  return "Unknown";
+  return t("computerTool.labels.unknown");
+}
+
+export function getDirectionLabel(
+  direction: string | undefined,
+  t: TranslationFunction,
+): string {
+  if (!direction) {
+    return "";
+  }
+  const key = `computerTool.directions.${direction}` as const;
+  const translated = t(key);
+  return translated || direction;
+}
+
+export function getApplicationLabel(
+  application: string | undefined,
+  t: TranslationFunction,
+): string {
+  if (!application) {
+    return "";
+  }
+
+  const key = `computerTool.applications.${application}` as const;
+  const translated = t(key);
+  return translated || application;
 }

@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CustomModelsModule } from './custom-models/custom-models.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AgentModule,
     TasksModule,
     MessagesModule,
+    CustomModelsModule,
     PrismaModule,
   ],
   controllers: [AppController],
