@@ -5,6 +5,7 @@ import { TaskItem } from "@/components/tasks/TaskItem";
 import { fetchTasks } from "@/utils/taskUtils";
 import { Task } from "@/types";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TaskListProps {
   limit?: number;
@@ -14,15 +15,16 @@ interface TaskListProps {
   showHeader?: boolean;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ 
-  limit = 5, 
-  className = "", 
-  title = "Latest Tasks",
+export const TaskList: React.FC<TaskListProps> = ({
+  limit = 5,
+  className = "",
+  title,
   description,
   showHeader = true,
 }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation();
 
   // WebSocket handlers for real-time updates
   const handleTaskUpdate = useCallback((updatedTask: Task) => {
@@ -71,20 +73,24 @@ export const TaskList: React.FC<TaskListProps> = ({
     <div className={className}>
       {showHeader && (
         <div className="mb-6 flex flex-col gap-1">
-          <h2 className="text-base font-medium">{title}</h2>
-          <p className="text-sm text-bytebot-bronze-light-11">{description}</p>
+          <h2 className="text-base font-medium">
+            {title ?? t("taskList.title")}
+          </h2>
+          <p className="text-sm text-bytebot-bronze-light-11">
+            {description ?? t("taskList.description")}
+          </p>
         </div>
       )}
-      
+
       {isLoading ? (
         <div className="p-4 text-center">
           <div className="animate-spin h-6 w-6 border-4 border-bytebot-bronze-light-5 border-t-bytebot-bronze rounded-full mx-auto mb-2"></div>
-          <p className="text-gray-500 text-sm">Loading tasks...</p>
+          <p className="text-gray-500 text-sm">{t("taskList.loading")}</p>
         </div>
       ) : tasks.length === 0 ? (
         <div className="p-4 text-center border border-dashed border-bytebot-bronze-light-5 rounded-lg">
-          <p className="text-gray-500 text-sm">No tasks available</p>
-          <p className="text-gray-400 text-xs mt-1">Your completed tasks will appear here</p>
+          <p className="text-gray-500 text-sm">{t("taskList.empty")}</p>
+          <p className="text-gray-400 text-xs mt-1">{t("taskList.emptyHint")}</p>
         </div>
       ) : (
         <div className="space-y-3">

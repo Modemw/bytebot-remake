@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Status types based on the image
 export type VirtualDesktopStatus =
@@ -14,132 +17,69 @@ export type VirtualDesktopStatus =
   | "live_view";
 
 interface StatusConfig {
-  dot: React.ReactNode;
-  text: string;
+  indicator: "black" | "green" | "orange" | "red" | "gray" | "pink";
   gradient: string;
-  subtext: string;
+  titleKey: string;
+  subtextKey: string;
+  altKey: string;
 }
 
 const statusConfig: Record<VirtualDesktopStatus, StatusConfig> = {
   live_view: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-black.svg"
-          alt="Live view status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Live Desktop View",
+    indicator: "black",
     gradient: "from-gray-700 to-gray-900",
-    subtext: "",
+    titleKey: "desktop.status.liveView.title",
+    subtextKey: "desktop.status.liveView.subtext",
+    altKey: "desktop.status.liveView.alt",
   },
   running: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-green.svg"
-          alt="Running status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Running",
+    indicator: "green",
     gradient: "from-green-700 to-green-900",
-    subtext: "Task in progress",
+    titleKey: "desktop.status.running.title",
+    subtextKey: "desktop.status.running.subtext",
+    altKey: "desktop.status.running.alt",
   },
   needs_attention: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-orange.svg"
-          alt="Needs attention status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Needs Attention",
+    indicator: "orange",
     gradient: "from-yellow-600 to-orange-700",
-    subtext: "Task needs attention",
+    titleKey: "desktop.status.needsAttention.title",
+    subtextKey: "desktop.status.needsAttention.subtext",
+    altKey: "desktop.status.needsAttention.alt",
   },
   failed: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-red.svg"
-          alt="Failed status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Failed",
+    indicator: "red",
     gradient: "from-red-700 to-red-900",
-    subtext: "Task failed",
+    titleKey: "desktop.status.failed.title",
+    subtextKey: "desktop.status.failed.subtext",
+    altKey: "desktop.status.failed.alt",
   },
   canceled: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-gray.svg"
-          alt="Canceled status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Canceled",
+    indicator: "gray",
     gradient: "from-gray-400 to-gray-600",
-    subtext: "Task canceled",
+    titleKey: "desktop.status.canceled.title",
+    subtextKey: "desktop.status.canceled.subtext",
+    altKey: "desktop.status.canceled.alt",
   },
   pending: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-gray.svg"
-          alt="Pending status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Pending",
+    indicator: "gray",
     gradient: "from-gray-400 to-gray-600",
-    subtext: "Task pending",
+    titleKey: "desktop.status.pending.title",
+    subtextKey: "desktop.status.pending.subtext",
+    altKey: "desktop.status.pending.alt",
   },
   user_control: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-pink.svg"
-          alt="User control status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Running",
+    indicator: "pink",
     gradient: "from-pink-500 to-fuchsia-700",
-    subtext: "You took control",
+    titleKey: "desktop.status.userControl.title",
+    subtextKey: "desktop.status.userControl.subtext",
+    altKey: "desktop.status.userControl.alt",
   },
   completed: {
-    dot: (
-      <span className="flex items-center justify-center">
-        <Image
-          src="/indicators/indicator-green.svg"
-          alt="Completed status"
-          width={15}
-          height={15}
-        />
-      </span>
-    ),
-    text: "Completed",
+    indicator: "green",
     gradient: "from-green-700 to-green-900",
-    subtext: "Task completed",
+    titleKey: "desktop.status.completed.title",
+    subtextKey: "desktop.status.completed.subtext",
+    altKey: "desktop.status.completed.alt",
   },
 };
 
@@ -152,11 +92,23 @@ export interface VirtualDesktopStatusHeaderProps {
 export const VirtualDesktopStatusHeader: React.FC<
   VirtualDesktopStatusHeaderProps
 > = ({ status, subtext, className }) => {
+  const { t } = useTranslation();
   const config = statusConfig[status];
+  const indicatorAlt = t(config.altKey);
+  const title = t(config.titleKey);
+  const defaultSubtext = t(config.subtextKey);
+  const resolvedSubtext = subtext ?? defaultSubtext;
+  const showSubtext = resolvedSubtext.trim().length > 0;
+
   return (
     <div className={cn("flex items-start gap-2", className)}>
       <span className="mt-1 flex items-center justify-center">
-        {config.dot}
+        <Image
+          src={`/indicators/indicator-${config.indicator}.svg`}
+          alt={indicatorAlt}
+          width={15}
+          height={15}
+        />
       </span>
       <div>
         <span
@@ -179,12 +131,12 @@ export const VirtualDesktopStatusHeader: React.FC<
                 : "",
             )}
           >
-            {config.text}
+            {title}
           </span>
         </span>
-        {config.subtext && (
+        {showSubtext && (
           <span className="block text-[12px] text-zinc-400">
-            {subtext || config.subtext}
+            {resolvedSubtext}
           </span>
         )}
       </div>

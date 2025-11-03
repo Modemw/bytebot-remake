@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import { Task, TaskStatus } from "@/types";
 import { format } from "date-fns";
+import { zhCN, zhTW, enUS } from "date-fns/locale";
 import { capitalizeFirstChar } from "@/utils/stringUtils";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -10,6 +13,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Loader } from "@/components/ui/loader";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TaskItemProps {
   task: Task;
@@ -52,6 +56,12 @@ const STATUS_CONFIGS: Record<TaskStatus, StatusIconConfig> = {
 };
 
 export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+  const { t, language } = useTranslation();
+
+  const locale =
+    language === "zh-CN" ? zhCN : language === "zh-TW" ? zhTW : enUS;
+  const shouldCapitalize = language === "en";
+
   // Format date to match the screenshot (e.g., "Today 9:13am" or "April 13, 2025, 12:01pm")
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -62,10 +72,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
       date.getMonth() === today.getMonth() &&
       date.getFullYear() === today.getFullYear();
 
-    const formatString = isToday ? `'Today' h:mma` : "MMMM d, yyyy h:mma";
+    const formatString = isToday
+      ? t("taskItem.formatToday")
+      : t("taskItem.formatFull");
 
-    const formatted = format(date, formatString).toLowerCase();
-    return capitalizeFirstChar(formatted);
+    const formatted = format(date, formatString, { locale });
+    if (shouldCapitalize) {
+      return capitalizeFirstChar(formatted.toLowerCase());
+    }
+    return formatted;
   };
 
   const StatusIcon = ({ status }: { status: TaskStatus }) => {
@@ -96,7 +111,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           <div className="flex items-center justify-start space-x-2">
             <StatusIcon status={task.status} />
             <div className="text-byhtebot-bronze-dark-7 text-sm font-medium">
-              {capitalizeFirstChar(task.description)}
+              {shouldCapitalize
+                ? capitalizeFirstChar(task.description)
+                : task.description}
             </div>
           </div>
           <div className="ml-7 flex items-center justify-start space-x-1.5 text-xs">

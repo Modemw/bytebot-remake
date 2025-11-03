@@ -1,14 +1,18 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { User03Icon } from "@hugeicons/core-free-icons";
 import { Role } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface MessageAvatarProps {
   role: Role;
 }
 
 export function MessageAvatar({ role }: MessageAvatarProps) {
+  const { t } = useTranslation();
   const baseClasses = "flex flex-shrink-0 items-center justify-center rounded-md border border-bytebot-bronze-light-7 bg-bytebot-bronze-light-1 h-[28px] w-[28px]";
 
   if (role === Role.ASSISTANT) {
@@ -16,7 +20,7 @@ export function MessageAvatar({ role }: MessageAvatarProps) {
       <div className={baseClasses}>
         <Image
           src="/bytebot_square_light.svg"
-          alt="Bytebot"
+          alt={t("messageAvatar.assistantAlt")}
           width={16}
           height={16}
           className="h-4 w-4"

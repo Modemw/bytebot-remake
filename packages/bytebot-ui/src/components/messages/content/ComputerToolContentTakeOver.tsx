@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -7,14 +9,27 @@ import {
   isPressKeysToolUseBlock,
   isWaitToolUseBlock,
   isScrollToolUseBlock,
+  isScreenshotToolUseBlock,
 } from "@bytebot/shared";
-import { getIcon, getLabel } from "./ComputerToolUtils";
+import {
+  getIcon,
+  getLabel,
+  getDirectionLabel,
+} from "./ComputerToolUtils";
+import { useTranslation } from "@/hooks/useTranslation";
+import { TranslationFunction } from "@/contexts/LanguageContext";
 
 interface ComputerToolContentTakeOverProps {
   block: ComputerToolUseContentBlock;
 }
 
-function ToolDetailsTakeOver({ block }: { block: ComputerToolUseContentBlock }) {
+function ToolDetailsTakeOver({
+  block,
+  t,
+}: {
+  block: ComputerToolUseContentBlock;
+  t: TranslationFunction;
+}) {
   const baseClasses = "px-1 py-0.5 text-xs text-fuchsia-600 bg-bytebot-red-light-1 border border-bytebot-bronze-light-7 rounded-md";
 
   return (
@@ -42,7 +57,7 @@ function ToolDetailsTakeOver({ block }: { block: ComputerToolUseContentBlock }) 
           {`${block.input.duration}ms`}
         </p>
       )}
-      
+
       {/* Coordinates for click/mouse actions */}
       {block.input.coordinates && (
         <p className={baseClasses}>
@@ -51,7 +66,7 @@ function ToolDetailsTakeOver({ block }: { block: ComputerToolUseContentBlock }) 
           {(block.input.coordinates as { x: number; y: number }).y}
         </p>
       )}
-      
+
       {/* Start and end coordinates for path actions */}
       {"path" in block.input &&
         Array.isArray(block.input.path) &&
@@ -59,16 +74,26 @@ function ToolDetailsTakeOver({ block }: { block: ComputerToolUseContentBlock }) 
           (point) => point.x !== undefined && point.y !== undefined,
         ) && (
           <p className={baseClasses}>
-            From: {block.input.path[0].x}, {block.input.path[0].y} → To:{" "}
+            {t("computerTool.details.from")}: {block.input.path[0].x},
+            {" "}
+            {block.input.path[0].y} → {t("computerTool.details.to")}: {" "}
             {block.input.path[block.input.path.length - 1].x},{" "}
             {block.input.path[block.input.path.length - 1].y}
           </p>
         )}
-      
+
       {/* Scroll information */}
       {isScrollToolUseBlock(block) && (
         <p className={baseClasses}>
-          {String(block.input.direction)} {Number(block.input.scrollCount)}
+          {t("computerTool.details.scroll", {
+            direction: getDirectionLabel(
+              typeof block.input.direction === "string"
+                ? block.input.direction
+                : "",
+              t,
+            ),
+            count: Number(block.input.scrollCount),
+          })}
         </p>
       )}
     </>
@@ -76,8 +101,9 @@ function ToolDetailsTakeOver({ block }: { block: ComputerToolUseContentBlock }) 
 }
 
 export function ComputerToolContentTakeOver({ block }: ComputerToolContentTakeOverProps) {
+  const { t } = useTranslation();
   // Don't render screenshot tool use blocks here - they're handled separately
-  if (getLabel(block) === "Screenshot") {
+  if (isScreenshotToolUseBlock(block)) {
     return null;
   }
 
@@ -91,10 +117,10 @@ export function ComputerToolContentTakeOver({ block }: ComputerToolContentTakeOv
           />
         </div>
         <p className="text-xs text-bytebot-bronze-light-11">
-          {getLabel(block)}
+          {getLabel(block, t)}
         </p>
-        <ToolDetailsTakeOver block={block} />
+        <ToolDetailsTakeOver block={block} t={t} />
       </div>
     </div>
   );
-} 
+}
