@@ -19,6 +19,7 @@ import { ANTHROPIC_MODELS } from '../anthropic/anthropic.constants';
 import { OPENAI_MODELS } from '../openai/openai.constants';
 import { GOOGLE_MODELS } from '../google/google.constants';
 import { BytebotAgentModel } from 'src/agent/agent.types';
+import { CustomModelsService } from '../custom-models/custom-models.service';
 
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
@@ -42,11 +43,21 @@ function loadCustomModels(): BytebotAgentModel[] {
     return parsed
       .filter((model) => typeof model === 'object' && model !== null)
       .map((model) => ({
+        provider:
+          typeof model.provider === 'string' && model.provider.length > 0
+            ? model.provider
+            : 'custom',
         provider: (model.provider as BytebotAgentModel['provider']) ?? 'custom',
         name: model.name,
         title: model.title ?? model.name,
         contextWindow: model.contextWindow,
       }))
+      .filter(
+        (model) =>
+          typeof model.name === 'string' &&
+          model.name.length > 0 &&
+          typeof model.title === 'string',
+      );
       .filter((model) => typeof model.name === 'string' && model.name.length > 0 && typeof model.title === 'string');
   } catch (error) {
     console.warn('Failed to parse BYTEBOT_CUSTOM_MODELS:', error);
@@ -54,6 +65,7 @@ function loadCustomModels(): BytebotAgentModel[] {
   }
 }
 
+const customModelsFromEnv = loadCustomModels();
 const customModels = loadCustomModels();
 
 const defaultModels = [
@@ -67,7 +79,22 @@ export class TasksController {
   constructor(
     private readonly tasksService: TasksService,
     private readonly messagesService: MessagesService,
+    private readonly customModelsService: CustomModelsService,
   ) {}
+
+  private async getAllCustomModels(): Promise<BytebotAgentModel[]> {
+    const persisted = await this.customModelsService.listAgentModels();
+    const combined = [...persisted, ...customModelsFromEnv];
+
+    const deduped = new Map<string, BytebotAgentModel>();
+    for (const model of combined) {
+      if (model.name && !deduped.has(model.name)) {
+        deduped.set(model.name, model);
+      }
+    }
+
+    return Array.from(deduped.values());
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -98,6 +125,8 @@ export class TasksController {
 
   @Get('models')
   async getModels() {
+    const customModels = await this.getAllCustomModels();
+
     if (proxyUrl) {
       try {
         const response = await fetch(`${proxyUrl}/model/info`, {

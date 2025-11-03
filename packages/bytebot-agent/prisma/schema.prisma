@@ -106,9 +106,19 @@ model File {
   data          String      // Base64 encoded file data
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  
+
   // Relations
   task          Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId        String
+}
+
+model CustomModel {
+  id            String   @id @default(uuid())
+  provider      String   @default("custom")
+  name          String   @unique
+  title         String
+  contextWindow Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
